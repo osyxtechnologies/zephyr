@@ -107,7 +107,11 @@ SECTION_FUNC(TEXT, z_riscv_switch)
 	andi t0, t0, K_USER
 	beqz t0, not_user_task
 	mv s0, a0
+#if defined(CONFIG_RISCV_PMP)
 	call z_riscv_pmp_usermode_enable
+#elif defined(CONFIG_RISCV_SPMP)
+	call z_riscv_spmp_usermode_enable
+#endif
 	mv a0, s0
 not_user_task:
 #endif

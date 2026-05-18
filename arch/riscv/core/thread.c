@@ -74,7 +74,11 @@ void arch_new_thread(struct k_thread *thread, k_thread_stack_t *stack,
 
 #if defined(CONFIG_USERSPACE)
 	/* Clear user thread context */
+#if defined(CONFIG_RISCV_PMP)
 	z_riscv_pmp_usermode_init(thread);
+#elif defined(CONFIG_RISCV_SPMP)
+	z_riscv_spmp_usermode_init(thread);
+#endif
 	thread->arch.priv_stack_start = 0;
 #endif /* CONFIG_USERSPACE */
 
@@ -191,8 +195,13 @@ FUNC_NORETURN void arch_user_mode_enter(k_thread_entry_t user_entry,
 #endif
 
 	/* Set up Physical Memory Protection */
+#if defined(CONFIG_RISCV_PMP)
 	z_riscv_pmp_usermode_prepare(_current);
 	z_riscv_pmp_usermode_enable(_current);
+#elif defined(CONFIG_RISCV_SPMP)
+	z_riscv_spmp_usermode_prepare(_current);
+	z_riscv_spmp_usermode_enable(_current);
+#endif
 
 	/* preserve stack pointer for next exception entry */
 	arch_curr_cpu()->arch.user_exc_sp = top_of_priv_stack;
