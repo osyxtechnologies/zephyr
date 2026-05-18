@@ -13,7 +13,7 @@
 #include <zephyr/arch/riscv/irq.h>
 #include "asm_macros.inc"
 
-#ifdef CONFIG_RISCV_S_MODE
+#if defined(CONFIG_RISCV_S_MODE) && !defined(CONFIG_RISCV_S_MODE_NATIVE_ENTRY)
 /* mcounteren bits */
 #define MCOUNTEREN_CY  BIT(0)  /* cycle counter */
 #define MCOUNTEREN_TM  BIT(1)  /* time counter */
@@ -29,7 +29,7 @@ GTEXT(z_prep_c)
 GDATA(riscv_cpu_wake_flag)
 GDATA(riscv_cpu_sp)
 GTEXT(arch_secondary_cpu_init)
-#ifdef CONFIG_RISCV_S_MODE
+#if defined(CONFIG_RISCV_S_MODE) && !defined(CONFIG_RISCV_S_MODE_NATIVE_ENTRY)
 GTEXT(__m_mode_sbi_handler)
 #endif
 
@@ -143,7 +143,7 @@ aa_loop:
 	call _WdogInit
 #endif
 
-#ifdef CONFIG_RISCV_S_MODE
+#if defined(CONFIG_RISCV_S_MODE) && !defined(CONFIG_RISCV_S_MODE_NATIVE_ENTRY)
 	/* Set M-mode trap vector to our SBI handler */
 	la t0, __m_mode_sbi_handler
 	csrw mtvec, t0

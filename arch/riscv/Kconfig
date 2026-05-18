@@ -648,11 +648,28 @@ endchoice # RISCV_PRIVILEGE_MODE
 config RISCV_M_MODE_STACK_SIZE
 	int "M-mode SBI handler stack size (bytes)"
 	default 256
-	depends on RISCV_S_MODE
+	depends on RISCV_S_MODE && !RISCV_S_MODE_NATIVE_ENTRY
 	help
 	  Size in bytes of the dedicated stack used by the in-tree M-mode SBI
 	  runtime handler. Increase this if the handler is extended with
 	  functionality that requires more stack space.
+
+config RISCV_S_MODE_NATIVE_ENTRY
+	bool "Enter at S-mode directly (no in-tree M-mode bootstrap or SBI shim)"
+	depends on RISCV_S_MODE
+	help
+	  Assume the kernel is launched already in S-mode by an external
+	  supervisor (a hypervisor, or boot firmware that hands off in
+	  S-mode). When set:
+
+	    - the boot code skips the M-mode-to-S-mode transition in reset.S
+	      (the kernel is already at S-mode on entry);
+	    - the in-tree M-mode SBI shim (arch/riscv/core/sbi.S) is not
+	      built; SBI ecalls go up to whatever supervisor is above.
+
+	  This is the right choice when running as a guest under a
+	  hypervisor, or when external firmware (e.g. OpenSBI) provides the
+	  M-mode SBI runtime.
 
 rsource "Kconfig.isa"
 
