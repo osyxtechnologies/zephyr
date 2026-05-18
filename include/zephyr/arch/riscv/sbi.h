@@ -48,4 +48,38 @@
 /** @brief SBI return code: requested extension/function is not available */
 #define SBI_ERR_NOT_SUPPORTED		-1
 
+#ifndef _ASMLANGUAGE
+#include <stdint.h>
+
+/** @brief Return value from an SBI ecall: (error, value) pair. */
+struct sbiret {
+	long error;
+	long value;
+};
+
+/**
+ * @brief Issue an SBI ecall to the supervisor above the kernel.
+ *
+ * Used when CONFIG_RISCV_S_MODE_NATIVE_ENTRY is set and the kernel runs
+ * under an external supervisor (hypervisor or M-mode firmware).
+ *
+ * @param ext         SBI extension ID
+ * @param fid         Function ID within the extension
+ * @param arg0..arg5  Function arguments (ABI: a0..a5)
+ * @return            error / value pair returned by the supervisor
+ */
+struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
+			unsigned long arg1, unsigned long arg2,
+			unsigned long arg3, unsigned long arg4,
+			unsigned long arg5);
+
+/**
+ * @brief Program the next supervisor timer interrupt deadline.
+ *
+ * @param stime_value Absolute deadline, in mtime ticks.
+ * @return 0 on success, non-zero SBI error code otherwise.
+ */
+int sbi_set_timer(uint64_t stime_value);
+#endif /* !_ASMLANGUAGE */
+
 #endif /* ZEPHYR_ARCH_RISCV_INCLUDE_SBI_H_ */
