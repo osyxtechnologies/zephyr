@@ -12,6 +12,27 @@ menuconfig VIRTUALIZATION
 
 if VIRTUALIZATION
 
+config BAO_IPCSHMEM
+	bool "Bao IPC shared memory driver"
+	help
+	  Support for the Bao hypervisor's inter-VM shared memory channel.
+	  Two guests are each mapped to a shmem region (carved by the
+	  hypervisor) and signal each other via an interrupt provisioned by
+	  Bao. Useful for lightweight VM-to-VM messaging.
+
+if BAO_IPCSHMEM
+
+config BAO_IPCSHMEM_SHELL
+	bool "Bao IPC shared memory shell module"
+	depends on SHELL
+	select DYNAMIC_INTERRUPTS
+	help
+	  Interactive shell commands that exercise the Bao IPC shared
+	  memory driver (read / write / notify the peer guest). Handy as
+	  the workshop demo entry point.
+
+endif # BAO_IPCSHMEM
+
 config IVSHMEM
 	bool "Inter-VM shared memory device (ivshmem)"
 	depends on PCIE

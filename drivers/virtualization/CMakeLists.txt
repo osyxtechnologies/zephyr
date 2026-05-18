@@ -7,6 +7,8 @@ zephyr_syscall_header(
 zephyr_library()
 
 # zephyr-keep-sorted-start
+zephyr_library_sources_ifdef(CONFIG_BAO_IPCSHMEM bao_ipcshmem.c)
+zephyr_library_sources_ifdef(CONFIG_BAO_IPCSHMEM_SHELL bao_ipcshmem_shell.c)
 zephyr_library_sources_ifdef(CONFIG_IVSHMEM virt_ivshmem.c)
 zephyr_library_sources_ifdef(CONFIG_IVSHMEM_SHELL virt_ivshmem_shell.c)
 zephyr_library_sources_ifdef(CONFIG_USERSPACE virt_ivshmem_handlers.c)
