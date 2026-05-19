@@ -80,7 +80,10 @@ tls_skip\@:
  * the C domain
  */
 SECTION_FUNC(TEXT, __initialize)
+#if !defined(CONFIG_RISCV_S_MODE_NATIVE_ENTRY)
 	csrr a0, mhartid
+#endif
+	/* a0 = hartid (from mhartid, or passed in a0 by hypervisor/SBI) */
 	li t0, CONFIG_RV_BOOT_HART
 	beq a0, t0, boot_first_core
 	j boot_secondary_core
@@ -92,7 +95,11 @@ boot_first_core:
 	 * Enable floating-point.
 	 */
 	li t0, MSTATUS_FS_INIT
+#if defined(CONFIG_RISCV_S_MODE_NATIVE_ENTRY)
+	csrs sstatus, t0
+#else
 	csrs mstatus, t0
+#endif
 
 	/*
 	 * Floating-point rounding mode set to IEEE-754 default, and clear
