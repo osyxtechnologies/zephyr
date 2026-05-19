@@ -13,8 +13,8 @@
 #define CSR_SIREG			0x151
 #define CSR_SIREG2			0x152
 
-#define CSR_SPMPSWITCH 		0x550
-#define CSR_SPMPSWITCHH 	0x550
+#define CSR_SPMPEN		0x183
+#define CSR_SPMPENH		0x193
 
 #define SISELECT_BASE		0x100
 
@@ -73,14 +73,14 @@ spmpswitch_store:
 	.option push
 	.option norvc
 	lr t0, 0(a4)
-	csrr t1, CSR_SPMPSWITCH
+	csrr t1, CSR_SPMPEN
 	or t0, t0, t1
-	csrw CSR_SPMPSWITCH, t0
+	csrw CSR_SPMPEN, t0
 #ifndef CONFIG_64BIT
-	lr t0, 4(a5)
-	csrr t1, CSR_SPMPSWITCHH
+	lr t0, RV_REGSIZE(a4)
+	csrr t1, CSR_SPMPENH
 	or t0, t0, t1
-	csrw CSR_SPMPSWITCHH, t0
+	csrw CSR_SPMPENH, t0
 #endif
 	.option pop
 
