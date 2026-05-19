@@ -39,6 +39,8 @@ extern "C" {
 
 /* IRQs 0-15 (MCAUSE interrupt=1) */
 
+/** Supervisor External Interrupt */
+#define RISCV_IRQ_SEXT  9
 /** Machine Software Interrupt */
 #define RISCV_IRQ_MSOFT 3
 /** Machine External Interrupt */

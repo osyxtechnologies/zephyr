@@ -18,9 +18,17 @@
 #define CSR_SETEIPNUM_M 0xFC0 /* Write EIID to set pending bit */
 #define CSR_CLREIPNUM_M 0xFC1 /* Write EIID to clear pending bit */
 
-/* MTOPEI register field masks */
-#define MTOPEI_EIID_MASK  0x7FF /* Bits [10:0]: External Interrupt ID (0-2047) */
-#define MTOPEI_PRIO_SHIFT 16    /* Bits [23:16]: Priority level */
+/* IMSIC direct CSRs (S-mode) */
+#define CSR_STOPEI      0x15C
+#define CSR_STOPI       0xDB0
+
+/* *topei field masks — identical layout for mtopei, stopei, vstopei (AIA §3.9) */
+#define TOPEI_EIID_SHIFT  16
+#define TOPEI_EIID_MASK   0x7FF /* bits [26:16] after >> TOPEI_EIID_SHIFT */
+
+/* Keep M-mode names as aliases for backward compat */
+#define MTOPEI_EIID_MASK  TOPEI_EIID_MASK
+#define MTOPEI_PRIO_SHIFT TOPEI_EIID_SHIFT
 #define MTOPEI_PRIO_MASK  (0xFF << MTOPEI_PRIO_SHIFT)
 
 /* IMSIC indirect CSR addresses (per privilege file) */

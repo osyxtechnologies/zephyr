@@ -21,6 +21,28 @@
 
 LOG_MODULE_REGISTER(intc_riscv_imsic, CONFIG_LOG_DEFAULT_LEVEL);
 
+/*
+ * Privilege-level abstraction: select M-mode or S-mode IMSIC CSR accessors
+ * depending on CONFIG_RISCV_S_MODE.  The indirect register map (eidedelivery,
+ * eithreshold, eip*, eie*) is identical at both privilege levels (AIA §3.7);
+ * only the *iselect/*ireg CSRs and the *topei claim CSR differ.
+ */
+#ifdef CONFIG_RISCV_S_MODE
+#define xcsr_read(idx)      sicsr_read(idx)
+#define xcsr_write(idx, v)  sicsr_write(idx, v)
+#define xcsr_set(idx, m)    sicsr_set(idx, m)
+#define xcsr_clear(idx, m)  sicsr_clear(idx, m)
+#define CSR_XTOPEI          CSR_STOPEI
+#define RISCV_IRQ_XEXT      RISCV_IRQ_SEXT
+#else
+#define xcsr_read(idx)      micsr_read(idx)
+#define xcsr_write(idx, v)  micsr_write(idx, v)
+#define xcsr_set(idx, m)    micsr_set(idx, m)
+#define xcsr_clear(idx, m)  micsr_clear(idx, m)
+#define CSR_XTOPEI          CSR_MTOPEI
+#define RISCV_IRQ_XEXT      RISCV_IRQ_MEXT
+#endif
+
 struct imsic_cfg {
 	uintptr_t reg_base;
 	uint32_t num_ids;
@@ -29,28 +51,23 @@ struct imsic_cfg {
 };
 
 /* Forward declaration */
-static void imsic_mext_isr(const void *arg);
+static void imsic_ext_isr(const void *arg);
 
 static int imsic_init(const struct device *dev)
 {
-	/* MINIMAL: Only write EIDELIVERY and EITHRESHOLD */
-	/* Enable delivery in MMSI mode (bits [30:29] = 10 = 0x40000000) */
-	uint32_t eidelivery_value = EIDELIVERY_ENABLE | EIDELIVERY_MODE_MMSI;
-
-	LOG_DBG("Setting EIDELIVERY=0x%08x (ENABLE=0x%x, MODE_MMSI=0x%x)", eidelivery_value,
-		(unsigned int)EIDELIVERY_ENABLE, (unsigned int)EIDELIVERY_MODE_MMSI);
-	micsr_write(ICSR_EIDELIVERY, eidelivery_value);
+	/* Enable interrupt delivery from this interrupt file (AIA §3.8.1, value 1) */
+	xcsr_write(ICSR_EIDELIVERY, EIDELIVERY_ENABLE);
 
 	/* Set EITHRESHOLD to 0 to allow all interrupts (no priority filtering) */
-	micsr_write(ICSR_EITHRESH, 0);
+	xcsr_write(ICSR_EITHRESH, 0);
 
 	LOG_DBG("IMSIC init hart=%u num_ids=%u nr_irqs=%u",
 		((const struct imsic_cfg *)dev->config)->hart_id,
 		((const struct imsic_cfg *)dev->config)->num_ids,
 		((const struct imsic_cfg *)dev->config)->nr_irqs);
 	LOG_DBG("  EIDELIVERY=0x%08lx EITHRESHOLD=0x%08lx",
-		(unsigned long)micsr_read(ICSR_EIDELIVERY),
-		(unsigned long)micsr_read(ICSR_EITHRESH));
+		(unsigned long)xcsr_read(ICSR_EIDELIVERY),
+		(unsigned long)xcsr_read(ICSR_EITHRESH));
 
 	return 0;
 }
@@ -58,10 +75,10 @@ static int imsic_init(const struct device *dev)
 /* Runtime API: claim interrupt (atomic read and clear) */
 inline uint32_t riscv_imsic_claim(void)
 {
-	/* Atomic read and claim: csrrw reads ID and clears its pending bit */
-	uint32_t topei = csr_swap(CSR_MTOPEI, 0);
+	/* csrrw rd, *topei, x0: reads highest-priority pending EIID and claims it (AIA §3.9) */
+	uint32_t topei = csr_swap(CSR_XTOPEI, 0);
 
-	return topei & MTOPEI_EIID_MASK;
+	return (topei >> TOPEI_EIID_SHIFT) & TOPEI_EIID_MASK;
 }
 
 /* Helper to calculate EIE register index and bit position for an EIID */
@@ -81,7 +98,7 @@ void riscv_imsic_enable_eiid(uint32_t eiid)
 
 	LOG_DBG("IMSIC enable EIID %u on CPU %u: EIE[%u] bit %u", eiid, arch_proc_id(),
 		reg_index, bit);
-	micsr_set(icsr_addr, BIT(bit));
+	xcsr_set(icsr_addr, BIT(bit));
 }
 
 /* Disable an EIID in IMSIC EIE - operates on CURRENT CPU's IMSIC via CSRs */
@@ -92,7 +109,7 @@ void riscv_imsic_disable_eiid(uint32_t eiid)
 	eiid_to_eie_index(eiid, &reg_index, &bit);
 	uint32_t icsr_addr = ICSR_EIE0 + reg_index;
 
-	micsr_clear(icsr_addr, BIT(bit));
+	xcsr_clear(icsr_addr, BIT(bit));
 	LOG_DBG("IMSIC disable EIID %u on CPU %u", eiid, arch_proc_id());
 }
 
@@ -104,24 +121,22 @@ int riscv_imsic_is_enabled(uint32_t eiid)
 	eiid_to_eie_index(eiid, &reg_index, &bit);
 	uint32_t icsr_addr = ICSR_EIE0 + reg_index;
 
-	return !!(micsr_read(icsr_addr) & BIT(bit));
+	return !!(xcsr_read(icsr_addr) & BIT(bit));
 }
 
 /* Separate IRQ registration for hart 0 vs other harts to avoid duplicate registration */
 static void imsic_irq_config_func_0(void)
 {
-	/* Only hart 0 (instance 0) registers the global MEXT IRQ handler */
-	IRQ_CONNECT(RISCV_IRQ_MEXT, 0, imsic_mext_isr, DEVICE_DT_INST_GET(0), 0);
-	irq_enable(RISCV_IRQ_MEXT);
-	LOG_DBG("Registered MEXT IRQ handler from hart 0 IMSIC instance");
+	IRQ_CONNECT(RISCV_IRQ_XEXT, 0, imsic_ext_isr, DEVICE_DT_INST_GET(0), 0);
+	irq_enable(RISCV_IRQ_XEXT);
+	LOG_DBG("Registered EXT IRQ handler from hart 0 IMSIC instance");
 }
 
 #define IMSIC_IRQ_CONFIG_FUNC_DEFINE_SECONDARY(inst)                                               \
 	static void imsic_irq_config_func_##inst(void)                                             \
 	{                                                                                          \
-		/* Secondary harts just enable MEXT locally, no IRQ_CONNECT */                     \
-		irq_enable(RISCV_IRQ_MEXT);                                                        \
-		LOG_DBG("Hart %u IMSIC: enabled MEXT locally (no IRQ_CONNECT)",                    \
+		irq_enable(RISCV_IRQ_XEXT);                                                        \
+		LOG_DBG("Hart %u IMSIC: enabled EXT locally (no IRQ_CONNECT)",                     \
 			DT_INST_PROP(inst, riscv_hart_id));                                        \
 	}
 
@@ -151,7 +166,7 @@ IMSIC_IRQ_CONFIG_FUNC_DEFINE_SECONDARY(4)
 
 DT_INST_FOREACH_STATUS_OKAY(IMSIC_INIT)
 
-/* Call IRQ config functions at POST_KERNEL level to register MEXT handler */
+/* Call IRQ config functions at POST_KERNEL level to register external IRQ handler */
 static int imsic_irq_init(void)
 {
 	/* Call instance 0 (always present) */
@@ -177,12 +192,13 @@ static int imsic_irq_init(void)
 SYS_INIT(imsic_irq_init, POST_KERNEL, CONFIG_INTC_INIT_PRIORITY);
 
 /*
- * MEXT interrupt handler: claim EIID from IMSIC and dispatch to registered ISR
+ * External interrupt handler: claim EIID from IMSIC and dispatch to registered ISR.
+ * Uses stopei in S-mode, mtopei in M-mode (AIA §3.9).
  *
  * With 1:1 mapping, EIID equals the local APLIC source number. The AIA
  * coordinator dispatches it through the second-level ISR table.
  */
-static void imsic_mext_isr(const void *arg)
+static void imsic_ext_isr(const void *arg)
 {
 	const struct device *dev = arg;
 
@@ -191,7 +207,7 @@ static void imsic_mext_isr(const void *arg)
 #else
 	const struct imsic_cfg *cfg = dev->config;
 #endif
-	LOG_DBG("MEXT ISR entered");
+	LOG_DBG("IMSIC EXT ISR entered");
 
 	uint32_t eiid = riscv_imsic_claim();
 
@@ -199,7 +215,7 @@ static void imsic_mext_isr(const void *arg)
 		return; /* Spurious or already claimed */
 	}
 
-	LOG_DBG("MEXT claimed EIID %u", eiid);
+	LOG_DBG("IMSIC claimed EIID %u", eiid);
 #if defined(CONFIG_RISCV_AIA)
 	riscv_aia_dispatch_eiid(eiid);
 #else
@@ -230,26 +246,16 @@ void z_riscv_imsic_secondary_init(void)
 {
 	LOG_DBG("IMSIC secondary init on CPU %u", arch_proc_id());
 
-	/* Enable interrupt delivery in MMSI mode */
-	/* EIDELIVERY[0] = 1: Enable delivery */
-	/* EIDELIVERY[30:29] = 10: MMSI mode (0x40000000) */
-	uint32_t eidelivery_value = EIDELIVERY_ENABLE | EIDELIVERY_MODE_MMSI;
+	xcsr_write(ICSR_EIDELIVERY, EIDELIVERY_ENABLE);
+	xcsr_write(ICSR_EITHRESH, 0);
 
-	micsr_write(ICSR_EIDELIVERY, eidelivery_value);
+	irq_enable(RISCV_IRQ_XEXT);
 
-	/* Set EITHRESHOLD to 0 to allow all interrupt priorities */
-	micsr_write(ICSR_EITHRESH, 0);
-
-	/* Enable MEXT interrupt on this CPU */
-	irq_enable(RISCV_IRQ_MEXT);
-
-	/* Read back to verify initialization */
-	unsigned long eidelivery_readback = micsr_read(ICSR_EIDELIVERY);
+	unsigned long eidelivery_readback = xcsr_read(ICSR_EIDELIVERY);
 
 	LOG_DBG("CPU %u IMSIC initialized: EIDELIVERY=0x%08lx EITHRESH=0x%08lx", arch_proc_id(),
-		eidelivery_readback, (unsigned long)micsr_read(ICSR_EITHRESH));
+		eidelivery_readback, (unsigned long)xcsr_read(ICSR_EITHRESH));
 
-	/* Sanity check: verify EIDELIVERY enable bit is set */
 	if (!(eidelivery_readback & EIDELIVERY_ENABLE)) {
 		LOG_ERR("CPU %u IMSIC EIDELIVERY enable bit not set! Got 0x%08lx", arch_proc_id(),
 			eidelivery_readback);
