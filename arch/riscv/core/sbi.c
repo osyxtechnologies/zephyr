@@ -35,12 +35,3 @@ struct sbiret sbi_ecall(int ext, int fid, unsigned long arg0,
 	ret.value = a1;
 	return ret;
 }
-
-int sbi_set_timer(uint64_t stime_value)
-{
-	struct sbiret ret;
-
-	ret = sbi_ecall(SBI_EXT_TIME, SBI_FUNC_SET_TIMER,
-			(unsigned long)stime_value, 0, 0, 0, 0, 0);
-	return ret.error;
-}
