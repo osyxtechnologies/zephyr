@@ -158,9 +158,10 @@ void z_riscv_irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flag
 		return;
 	}
 
-	if (flags != 0) {
-		riscv_aia_config_source(irq, flags);
-	}
+	/* Always configure sourcecfg; SM=0 (inactive) means the APLIC never
+	 * forwards the source regardless of the enable bit. Default to
+	 * level-high when flags=0 (the standard "no special type" value). */
+	riscv_aia_config_source(irq, flags != 0 ? flags : APLIC_SM_LEVEL_HIGH);
 
 	/* AIA priority is handled via IMSIC EITHRESHOLD or EIID ordering */
 	riscv_aia_set_priority(irq, prio);
