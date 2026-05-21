@@ -58,6 +58,7 @@ static uint32_t last_elapsed;
 
 static void sbi_set_timer(uint64_t deadline)
 {
+#ifdef CONFIG_64BIT
 	register unsigned long a0 __asm__("a0") = (unsigned long)deadline;
 	register unsigned long a6 __asm__("a6") = SBI_FUNC_SET_TIMER;
 	register unsigned long a7 __asm__("a7") = SBI_EXT_TIME;
@@ -66,11 +67,43 @@ static void sbi_set_timer(uint64_t deadline)
 					: "+r"(a0)
 					: "r"(a6), "r"(a7)
 					: "a1", "memory");
+#else
+	/* On RV32, sbi_set_timer takes the 64-bit deadline split as a0=low,
+	 * a1=high (SBI spec, table "Function listings"). Failing to pass a1
+	 * causes the deadline to be reinterpreted with whatever garbage is
+	 * in a1, breaking k_msleep() the moment the low half of `time`
+	 * wraps past 2^32 (~171 s at 25 MHz on CVA6).
+	 */
+	register unsigned long a0 __asm__("a0") = (unsigned long)(deadline);
+	register unsigned long a1 __asm__("a1") = (unsigned long)(deadline >> 32);
+	register unsigned long a6 __asm__("a6") = SBI_FUNC_SET_TIMER;
+	register unsigned long a7 __asm__("a7") = SBI_EXT_TIME;
+
+	__asm__ volatile("ecall"
+					: "+r"(a0), "+r"(a1)
+					: "r"(a6), "r"(a7)
+					: "memory");
+#endif
 }
 
 static uint64_t stime(void)
 {
+#ifdef CONFIG_64BIT
 	return csr_read(time);
+#else
+	/* On RV32 the `time` CSR is 64 bits but is read as two 32-bit halves
+	 * (`time` low, `timeh` high). Use the standard re-read protocol to
+	 * detect a low-half rollover between the two reads. */
+	uint32_t lo, hi, hi2;
+
+	do {
+		hi  = csr_read(timeh);
+		lo  = csr_read(time);
+		hi2 = csr_read(timeh);
+	} while (hi != hi2);
+
+	return ((uint64_t)hi << 32) | lo;
+#endif
 }
 
 static void timer_isr(const void *arg)
