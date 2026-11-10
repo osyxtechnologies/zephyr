@@ -196,9 +196,10 @@ void z_riscv_irq_priority_set(unsigned int irq, unsigned int prio, uint32_t flag
 		return;
 	}
 
-	if (flags != 0) {
-		riscv_aia_config_source(irq, flags);
-	}
+	/* A source left with SM=0 (inactive) is never forwarded, whatever its
+	 * enable bit, so default to level-high when flags is 0.
+	 */
+	riscv_aia_config_source(irq, flags != 0 ? flags : APLIC_SM_LEVEL_HIGH);
 
 	/* Set priority if direct delivery mode is enabled.
 	 * AIA-IMSIC priority is handled via IMSIC EITHRESHOLD or EIID ordering.
