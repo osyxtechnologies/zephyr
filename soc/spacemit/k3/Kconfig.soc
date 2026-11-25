@@ -1,0 +1,10 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+config SOC_SPACEMIT_K3
+	bool
+	help
+	  SpacemiT K3
+
+config SOC
+	default "spacemit_k3" if SOC_SPACEMIT_K3

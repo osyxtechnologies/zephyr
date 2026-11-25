@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+config SOC_SPACEMIT_K3
+	select RISCV
+	select RISCV_PRIVILEGED
+	select RISCV_HAS_AIA
+	select RISCV_SOC_HAS_GP_RELATIVE_ADDRESSING
+	select INCLUDE_RESET_VECTOR
