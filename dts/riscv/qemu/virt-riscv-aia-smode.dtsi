@@ -1,0 +1,21 @@
+/*
+ * SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/* Supervisor-level interrupt domain of the virt machine */
+
+&{/soc} {
+	aplic: interrupt-controller@d000000 {
+		compatible = "riscv,aplic";
+		reg = <0x0d000000 0x00008000>;
+		interrupt-controller;
+		#address-cells = <0>;
+		#interrupt-cells = <3>;
+		riscv,num-sources = <64>;
+		status = "okay";
+	};
+};
+
+#include <qemu/virt-riscv-aia-irqs.dtsi>
