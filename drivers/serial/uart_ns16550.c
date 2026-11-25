@@ -116,6 +116,20 @@ LOG_MODULE_REGISTER(uart_ns16550, CONFIG_UART_LOG_LEVEL);
 #define IER_TBE 0x02   /* transmit bit enable */
 #define IER_LSR 0x04   /* line status interrupts */
 #define IER_MSI 0x08   /* modem status interrupts */
+#define IER_RTOIE 0x10 /* receiver time-out interrupts (XScale/PXA) */
+#define IER_UUE 0x40   /* UART unit enable (XScale/PXA) */
+
+#ifdef CONFIG_UART_NS16550_XSCALE
+/* The unit enable bit lives in IER and must be kept set. The receiver
+ * time-out interrupt is the only one raised for data that stays below the
+ * FIFO trigger level.
+ */
+#define IER_INIT IER_UUE
+#define IER_RX (IER_RXRDY | IER_RTOIE)
+#else
+#define IER_INIT 0x00
+#define IER_RX IER_RXRDY
+#endif
 
 /* equates for interrupt identification register */
 
@@ -820,7 +834,7 @@ static int uart_ns16550_configure(const struct device *dev,
 	(void)ns16550_read_char(dev, &c);
 
 	/* disable interrupts  */
-	ns16550_outbyte(dev_cfg, IER(dev), 0x00);
+	ns16550_outbyte(dev_cfg, IER(dev), IER_INIT);
 	ret = 0;
 
 out:
@@ -1320,7 +1334,7 @@ static void uart_ns16550_irq_rx_enable(const struct device *dev)
 	const struct uart_ns16550_dev_config * const dev_cfg = dev->config;
 	k_spinlock_key_t key = k_spin_lock(&data->lock);
 
-	ns16550_outbyte(dev_cfg, IER(dev), ns16550_inbyte(dev_cfg, IER(dev)) | IER_RXRDY);
+	ns16550_outbyte(dev_cfg, IER(dev), ns16550_inbyte(dev_cfg, IER(dev)) | IER_RX);
 
 	k_spin_unlock(&data->lock, key);
 }
@@ -1337,7 +1351,7 @@ static void uart_ns16550_irq_rx_disable(const struct device *dev)
 	k_spinlock_key_t key = k_spin_lock(&data->lock);
 
 	ns16550_outbyte(dev_cfg, IER(dev),
-			ns16550_inbyte(dev_cfg, IER(dev)) & (~IER_RXRDY));
+			ns16550_inbyte(dev_cfg, IER(dev)) & (~IER_RX));
 
 	k_spin_unlock(&data->lock, key);
 }
@@ -1522,7 +1536,7 @@ static void uart_ns16550_isr(const struct device *dev)
 #ifdef CONFIG_UART_NS16550_WA_ISR_REENABLE_INTERRUPT
 	uint8_t cached_ier = ns16550_inbyte(dev_cfg, IER(dev));
 
-	ns16550_outbyte(dev_cfg, IER(dev), 0U);
+	ns16550_outbyte(dev_cfg, IER(dev), IER_INIT);
 	ns16550_outbyte(dev_cfg, IER(dev), cached_ier);
 #endif
 }

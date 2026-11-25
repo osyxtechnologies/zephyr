@@ -89,6 +89,14 @@ config UART_NS16550_BCM283X_AUX
 	  Enabling this configuration allows the users to use the auxiliary UART port in
 	  Broadcom BCM283x SoCs by enabling a vendor specific extended register set.
 
+config UART_NS16550_XSCALE
+	bool "Add support for the XScale/PXA NS16550 variant"
+	help
+	  The UARTs of Intel XScale and Marvell PXA SoCs, also found in SpacemiT
+	  SoCs, have a unit enable bit in the interrupt enable register that
+	  must be set for the UART to work, and a separate enable bit for the
+	  receiver time-out interrupt.
+
 config UART_NS16550_TI_K3
 	bool "Add support for NS16550 variant specific to TI K3 SoCs"
 	select PINCTRL
