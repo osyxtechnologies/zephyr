@@ -1,0 +1,503 @@
+/*
+ * SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include <freq.h>
+
+/ {
+	#address-cells = <2>;
+	#size-cells = <2>;
+	compatible = "spacemit,k3";
+
+	cpus {
+		#address-cells = <1>;
+		#size-cells = <0>;
+		timebase-frequency = <DT_FREQ_M(24)>;
+
+		cpu0: cpu@0 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <0>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic0: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu1: cpu@1 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <1>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic1: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu2: cpu@2 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <2>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic2: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu3: cpu@3 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <3>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic3: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu4: cpu@4 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <4>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic4: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu5: cpu@5 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <5>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic5: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu6: cpu@6 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <6>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic6: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu7: cpu@7 {
+			compatible = "spacemit,x100", "riscv";
+			device_type = "cpu";
+			reg = <7>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic7: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu8: cpu@8 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <8>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic8: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu9: cpu@9 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <9>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic9: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu10: cpu@10 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <10>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic10: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu11: cpu@11 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <11>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic11: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu12: cpu@12 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <12>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic12: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu13: cpu@13 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <13>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic13: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu14: cpu@14 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <14>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic14: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+
+		cpu15: cpu@15 {
+			compatible = "spacemit,a100", "riscv";
+			device_type = "cpu";
+			reg = <15>;
+			riscv,isa-base = "rv64i";
+			riscv,isa-extensions = "i", "m", "a", "f", "d", "c", "zicsr", "zifencei",
+					       "zba", "zbb", "zbs", "sstc", "smaia", "ssaia";
+			riscv,privilege-modes = "m", "s", "u";
+			status = "okay";
+
+			hlic15: interrupt-controller {
+				compatible = "riscv,cpu-intc";
+				#address-cells = <0>;
+				#interrupt-cells = <1>;
+				interrupt-controller;
+			};
+		};
+	};
+
+	soc {
+		compatible = "simple-bus";
+		#address-cells = <2>;
+		#size-cells = <2>;
+		ranges;
+
+		uart0: serial@d4017000 {
+			compatible = "ns16550";
+			reg = <0x0 0xd4017000 0x0 0x100>;
+			reg-shift = <2>;
+			clock-frequency = <14745600>;
+			interrupt-parent = <&aplic>;
+			interrupts = <42 1 6>;
+			status = "disabled";
+		};
+
+		/*
+		 * Supervisor-level interrupt files. Each hart has 64 of them, the
+		 * supervisor-level one followed by the 63 guest ones.
+		 */
+		imsic0: interrupt-controller@e0400000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0400000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <0>;
+			status = "okay";
+		};
+
+		imsic1: interrupt-controller@e0440000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0440000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <1>;
+			status = "disabled";
+		};
+
+		imsic2: interrupt-controller@e0480000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0480000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <2>;
+			status = "disabled";
+		};
+
+		imsic3: interrupt-controller@e04c0000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe04c0000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <3>;
+			status = "disabled";
+		};
+
+		imsic4: interrupt-controller@e0500000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0500000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <4>;
+			status = "disabled";
+		};
+
+		imsic5: interrupt-controller@e0540000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0540000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <5>;
+			status = "disabled";
+		};
+
+		imsic6: interrupt-controller@e0580000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0580000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <6>;
+			status = "disabled";
+		};
+
+		imsic7: interrupt-controller@e05c0000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe05c0000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <7>;
+			status = "disabled";
+		};
+
+		imsic8: interrupt-controller@e0600000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0600000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <8>;
+			status = "disabled";
+		};
+
+		imsic9: interrupt-controller@e0640000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0640000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <9>;
+			status = "disabled";
+		};
+
+		imsic10: interrupt-controller@e0680000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0680000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <10>;
+			status = "disabled";
+		};
+
+		imsic11: interrupt-controller@e06c0000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe06c0000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <11>;
+			status = "disabled";
+		};
+
+		imsic12: interrupt-controller@e0700000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0700000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <12>;
+			status = "disabled";
+		};
+
+		imsic13: interrupt-controller@e0740000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0740000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <13>;
+			status = "disabled";
+		};
+
+		imsic14: interrupt-controller@e0780000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe0780000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <14>;
+			status = "disabled";
+		};
+
+		imsic15: interrupt-controller@e07c0000 {
+			compatible = "riscv,imsic";
+			reg = <0x0 0xe07c0000 0x0 0x1000>;
+			interrupt-controller;
+			#interrupt-cells = <1>;
+			riscv,num-ids = <511>;
+			riscv,hart-id = <15>;
+			status = "disabled";
+		};
+
+		/* Supervisor-level interrupt domain */
+		aplic: interrupt-controller@e0804000 {
+			compatible = "riscv,aplic";
+			reg = <0x0 0xe0804000 0x0 0x4000>;
+			interrupt-controller;
+			#address-cells = <0>;
+			#interrupt-cells = <3>;
+			riscv,num-sources = <511>;
+			msi-parent = <&imsic0>;
+			interrupts-extended = <&hlic0 9 &hlic1 9 &hlic2 9 &hlic3 9
+					       &hlic4 9 &hlic5 9 &hlic6 9 &hlic7 9
+					       &hlic8 9 &hlic9 9 &hlic10 9 &hlic11 9
+					       &hlic12 9 &hlic13 9 &hlic14 9 &hlic15 9>;
+		};
+	};
+};

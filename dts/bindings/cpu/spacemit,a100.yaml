@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+description: SpacemiT A100 RISC-V core
+
+compatible: "spacemit,a100"
+
+include: riscv-common.yaml
