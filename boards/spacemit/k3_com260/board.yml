@@ -1,0 +1,9 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+board:
+  name: k3_com260
+  full_name: K3 CoM260
+  vendor: spacemit
+  socs:
+    - name: spacemit_k3

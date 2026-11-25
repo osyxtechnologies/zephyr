@@ -1,0 +1,5 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+config BOARD_K3_COM260
+	select SOC_SPACEMIT_K3

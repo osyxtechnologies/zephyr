@@ -1,0 +1,14 @@
+identifier: k3_com260
+name: SpacemiT K3 CoM260
+type: mcu
+arch: riscv
+toolchain:
+  - zephyr
+  - cross-compile
+ram: 262144
+supported:
+  - uart
+testing:
+  ignore_tags:
+    - net
+    - bluetooth

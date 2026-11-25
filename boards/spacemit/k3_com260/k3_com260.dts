@@ -1,0 +1,35 @@
+/*
+ * SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+/dts-v1/;
+
+#include <spacemit/k3.dtsi>
+
+/ {
+	model = "SpacemiT K3 CoM260";
+	compatible = "spacemit,k3-com260", "spacemit,k3";
+
+	chosen {
+		zephyr,console = &uart0;
+		zephyr,shell-uart = &uart0;
+		zephyr,sram = &ram0;
+	};
+
+	/*
+	 * The memory starts at 0x102000000. The image is linked at the address
+	 * the firmware loads kernels to, which also keeps it clear of the
+	 * firmware's own data at the bottom of the memory.
+	 */
+	ram0: memory@140000000 {
+		device_type = "memory";
+		reg = <0x1 0x40000000 0x0 0x10000000>;
+	};
+};
+
+&uart0 {
+	current-speed = <115200>;
+	status = "okay";
+};
