@@ -1,0 +1,19 @@
+/*
+ * SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+ *
+ * SPDX-License-Identifier: Apache-2.0
+ */
+
+#include "qemu_virt_riscv.overlay"
+
+&{/soc} {
+	imsic1: interrupt-controller@28001000 {
+		compatible = "riscv,imsic";
+		reg = <0x28001000 0x1000>;
+		interrupt-controller;
+		#interrupt-cells = <1>;
+		riscv,num-ids = <255>;
+		riscv,hart-id = <1>;
+		status = "okay";
+	};
+};

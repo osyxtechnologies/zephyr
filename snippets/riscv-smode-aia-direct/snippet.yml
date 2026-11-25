@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: Copyright The Zephyr Project Contributors
+# SPDX-License-Identifier: Apache-2.0
+
+name: riscv-smode-aia-direct
+description: |
+  Replaces the PLIC of a RISC-V board running in S-mode with the
+  supervisor-level APLIC in direct delivery mode.
+
+boards:
+  qemu_riscv64/qemu_virt_riscv64/opensbi:
+    append:
+      EXTRA_DTC_OVERLAY_FILE: boards/qemu_virt_riscv.overlay
+      EXTRA_CONF_FILE: riscv-smode-aia.conf
+  qemu_riscv64/qemu_virt_riscv64/opensbi_smp:
+    append:
+      EXTRA_DTC_OVERLAY_FILE: boards/qemu_virt_riscv.overlay
+      EXTRA_CONF_FILE: riscv-smode-aia.conf
